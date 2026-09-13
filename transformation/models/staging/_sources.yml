@@ -8,3 +8,12 @@ sources:
     tables:
       - name: ambient_air_quality
         description: One measurement row per city, year and monitoring programme version.
+
+  - name: salesforce
+    description: Salesforce CRM objects ingested via dlt verified source.
+    schema: main
+    tables:
+      - name: account
+        description: Salesforce Account objects (one row per account).
+      - name: contact
+        description: Salesforce Contact objects (one row per contact).

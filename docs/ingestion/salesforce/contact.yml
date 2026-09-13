@@ -1,0 +1,204 @@
+# Docs for bronze.contact — Salesforce Contact resource
+resource: salesforce.contact
+description: Bronze landing table for Salesforce Contact objects, ingested via dlt verified-source connector.
+columns:
+  - name: _dlt_id
+    description: Synthetic row identifier assigned by dlt at load time. Unique within the bronze table; not a natural primary key.
+  - name: _dlt_load_id
+    description: Identifier of the dlt load package that wrote this row. Joins to _dlt_loads.load_id.
+  - name: account_id
+    description: >-
+      Salesforce Contact field AccountId, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.AccountId
+  - name: assistant_name
+    description: >-
+      Salesforce Contact field AssistantName, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.AssistantName
+  - name: assistant_phone
+    description: >-
+      Salesforce Contact field AssistantPhone, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.AssistantPhone
+  - name: birthdate
+    description: >-
+      Salesforce Contact field Birthdate, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Birthdate
+  - name: clean_status
+    description: >-
+      Salesforce Contact field CleanStatus, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.CleanStatus
+  - name: created_by_id
+    description: >-
+      Salesforce Contact field CreatedById, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.CreatedById
+  - name: created_date
+    description: >-
+      Salesforce Contact field CreatedDate, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.CreatedDate
+  - name: department
+    description: >-
+      Salesforce Contact field Department, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Department
+  - name: description
+    description: >-
+      Salesforce Contact field Description, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Description
+  - name: email
+    description: >-
+      Salesforce Contact field Email, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Email
+  - name: fax
+    description: >-
+      Salesforce Contact field Fax, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Fax
+  - name: first_name
+    description: >-
+      Salesforce Contact field FirstName, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.FirstName
+  - name: home_phone
+    description: >-
+      Salesforce Contact field HomePhone, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.HomePhone
+  - name: id
+    description: >-
+      Salesforce Contact field Id, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Id
+  - name: is_deleted
+    description: >-
+      Salesforce Contact field IsDeleted, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.IsDeleted
+  - name: is_email_bounced
+    description: >-
+      Salesforce Contact field IsEmailBounced, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.IsEmailBounced
+  - name: is_priority_record
+    description: >-
+      Salesforce Contact field IsPriorityRecord, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.IsPriorityRecord
+  - name: languages__c
+    description: >-
+      Salesforce Contact field Languages__c, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Languages__c
+  - name: last_activity_date
+    description: >-
+      Salesforce Contact field LastActivityDate, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.LastActivityDate
+  - name: last_modified_by_id
+    description: >-
+      Salesforce Contact field LastModifiedById, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.LastModifiedById
+  - name: last_modified_date
+    description: >-
+      Salesforce Contact field LastModifiedDate, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.LastModifiedDate
+  - name: last_name
+    description: >-
+      Salesforce Contact field LastName, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.LastName
+  - name: last_referenced_date
+    description: >-
+      Salesforce Contact field LastReferencedDate, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.LastReferencedDate
+  - name: last_viewed_date
+    description: >-
+      Salesforce Contact field LastViewedDate, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.LastViewedDate
+  - name: lead_source
+    description: >-
+      Salesforce Contact field LeadSource, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.LeadSource
+  - name: level__c
+    description: >-
+      Salesforce Contact field Level__c, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Level__c
+  - name: mailing_city
+    description: >-
+      Salesforce Contact field MailingCity, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.MailingCity
+  - name: mailing_country
+    description: >-
+      Salesforce Contact field MailingCountry, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.MailingCountry
+  - name: mailing_country_code
+    description: >-
+      Salesforce Contact field MailingCountryCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.MailingCountryCode
+  - name: mailing_postal_code
+    description: >-
+      Salesforce Contact field MailingPostalCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.MailingPostalCode
+  - name: mailing_state
+    description: >-
+      Salesforce Contact field MailingState, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.MailingState
+  - name: mailing_state_code
+    description: >-
+      Salesforce Contact field MailingStateCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.MailingStateCode
+  - name: mailing_street
+    description: >-
+      Salesforce Contact field MailingStreet, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.MailingStreet
+  - name: mobile_phone
+    description: >-
+      Salesforce Contact field MobilePhone, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.MobilePhone
+  - name: name
+    description: >-
+      Salesforce Contact field Name, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Name
+  - name: other_city
+    description: >-
+      Salesforce Contact field OtherCity, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.OtherCity
+  - name: other_country
+    description: >-
+      Salesforce Contact field OtherCountry, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.OtherCountry
+  - name: other_country_code
+    description: >-
+      Salesforce Contact field OtherCountryCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.OtherCountryCode
+  - name: other_phone
+    description: >-
+      Salesforce Contact field OtherPhone, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.OtherPhone
+  - name: other_postal_code
+    description: >-
+      Salesforce Contact field OtherPostalCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.OtherPostalCode
+  - name: other_state
+    description: >-
+      Salesforce Contact field OtherState, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.OtherState
+  - name: other_state_code
+    description: >-
+      Salesforce Contact field OtherStateCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.OtherStateCode
+  - name: other_street
+    description: >-
+      Salesforce Contact field OtherStreet, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.OtherStreet
+  - name: owner_id
+    description: >-
+      Salesforce Contact field OwnerId, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.OwnerId
+  - name: phone
+    description: >-
+      Salesforce Contact field Phone, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Phone
+  - name: photo_url
+    description: >-
+      Salesforce Contact field PhotoUrl, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.PhotoUrl
+  - name: salutation
+    description: >-
+      Salesforce Contact field Salutation, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Salutation
+  - name: system_modstamp
+    description: >-
+      Salesforce Contact field SystemModstamp, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.SystemModstamp
+  - name: title
+    description: >-
+      Salesforce Contact field Title, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Contact.Title

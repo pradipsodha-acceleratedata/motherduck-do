@@ -1,0 +1,204 @@
+# Docs for bronze.account — Salesforce Account resource
+resource: salesforce.account
+description: Bronze landing table for Salesforce Account objects, ingested via dlt verified-source connector.
+columns:
+  - name: _dlt_id
+    description: Synthetic row identifier assigned by dlt at load time. Unique within the bronze table; not a natural primary key.
+  - name: _dlt_load_id
+    description: Identifier of the dlt load package that wrote this row. Joins to _dlt_loads.load_id.
+  - name: account_number
+    description: >-
+      Salesforce Account field AccountNumber, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.AccountNumber
+  - name: active__c
+    description: >-
+      Salesforce Account field Active__c, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Active__c
+  - name: annual_revenue
+    description: >-
+      Salesforce Account field AnnualRevenue, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.AnnualRevenue
+  - name: billing_city
+    description: >-
+      Salesforce Account field BillingCity, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.BillingCity
+  - name: billing_country
+    description: >-
+      Salesforce Account field BillingCountry, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.BillingCountry
+  - name: billing_country_code
+    description: >-
+      Salesforce Account field BillingCountryCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.BillingCountryCode
+  - name: billing_postal_code
+    description: >-
+      Salesforce Account field BillingPostalCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.BillingPostalCode
+  - name: billing_state
+    description: >-
+      Salesforce Account field BillingState, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.BillingState
+  - name: billing_state_code
+    description: >-
+      Salesforce Account field BillingStateCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.BillingStateCode
+  - name: billing_street
+    description: >-
+      Salesforce Account field BillingStreet, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.BillingStreet
+  - name: clean_status
+    description: >-
+      Salesforce Account field CleanStatus, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.CleanStatus
+  - name: created_by_id
+    description: >-
+      Salesforce Account field CreatedById, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.CreatedById
+  - name: created_date
+    description: >-
+      Salesforce Account field CreatedDate, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.CreatedDate
+  - name: customer_priority__c
+    description: >-
+      Salesforce Account field CustomerPriority__c, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.CustomerPriority__c
+  - name: description
+    description: >-
+      Salesforce Account field Description, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Description
+  - name: fax
+    description: >-
+      Salesforce Account field Fax, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Fax
+  - name: id
+    description: >-
+      Salesforce Account field Id, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Id
+  - name: industry
+    description: >-
+      Salesforce Account field Industry, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Industry
+  - name: is_customer_portal
+    description: >-
+      Salesforce Account field IsCustomerPortal, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.IsCustomerPortal
+  - name: is_deleted
+    description: >-
+      Salesforce Account field IsDeleted, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.IsDeleted
+  - name: is_partner
+    description: >-
+      Salesforce Account field IsPartner, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.IsPartner
+  - name: last_modified_by_id
+    description: >-
+      Salesforce Account field LastModifiedById, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.LastModifiedById
+  - name: last_modified_date
+    description: >-
+      Salesforce Account field LastModifiedDate, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.LastModifiedDate
+  - name: last_referenced_date
+    description: >-
+      Salesforce Account field LastReferencedDate, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.LastReferencedDate
+  - name: last_viewed_date
+    description: >-
+      Salesforce Account field LastViewedDate, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.LastViewedDate
+  - name: name
+    description: >-
+      Salesforce Account field Name, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Name
+  - name: number_of_employees
+    description: >-
+      Salesforce Account field NumberOfEmployees, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.NumberOfEmployees
+  - name: numberof_locations__c
+    description: >-
+      Salesforce Account field NumberofLocations__c, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.NumberofLocations__c
+  - name: owner_id
+    description: >-
+      Salesforce Account field OwnerId, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.OwnerId
+  - name: ownership
+    description: >-
+      Salesforce Account field Ownership, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Ownership
+  - name: phone
+    description: >-
+      Salesforce Account field Phone, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Phone
+  - name: photo_url
+    description: >-
+      Salesforce Account field PhotoUrl, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.PhotoUrl
+  - name: rating
+    description: >-
+      Salesforce Account field Rating, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Rating
+  - name: shipping_city
+    description: >-
+      Salesforce Account field ShippingCity, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.ShippingCity
+  - name: shipping_country
+    description: >-
+      Salesforce Account field ShippingCountry, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.ShippingCountry
+  - name: shipping_country_code
+    description: >-
+      Salesforce Account field ShippingCountryCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.ShippingCountryCode
+  - name: shipping_postal_code
+    description: >-
+      Salesforce Account field ShippingPostalCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.ShippingPostalCode
+  - name: shipping_state
+    description: >-
+      Salesforce Account field ShippingState, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.ShippingState
+  - name: shipping_state_code
+    description: >-
+      Salesforce Account field ShippingStateCode, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.ShippingStateCode
+  - name: shipping_street
+    description: >-
+      Salesforce Account field ShippingStreet, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.ShippingStreet
+  - name: sic
+    description: >-
+      Salesforce Account field Sic, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Sic
+  - name: sla__c
+    description: >-
+      Salesforce Account field Sla__c, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Sla__c
+  - name: sla_expiration_date__c
+    description: >-
+      Salesforce Account field SlaExpirationDate__c, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.SlaExpirationDate__c
+  - name: sla_serial_number__c
+    description: >-
+      Salesforce Account field SlaSerialNumber__c, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.SlaSerialNumber__c
+  - name: system_modstamp
+    description: >-
+      Salesforce Account field SystemModstamp, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.SystemModstamp
+  - name: ticker_symbol
+    description: >-
+      Salesforce Account field TickerSymbol, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.TickerSymbol
+  - name: type
+    description: >-
+      Salesforce Account field Type, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Type
+  - name: upsell_opportunity__c
+    description: >-
+      Salesforce Account field UpsellOpportunity__c, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.UpsellOpportunity__c
+  - name: website
+    description: >-
+      Salesforce Account field Website, surfaced as snake_case by the dlt connector.
+    source_ref: salesforce.Account.Website
