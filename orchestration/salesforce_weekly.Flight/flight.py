@@ -10,21 +10,13 @@
 # config values, never by editing code. Each key MUST be declared in config.json:
 # MD_RUN_FLIGHT rejects a per-run override for an undeclared key.
 #
-# The dlt pipeline runs inline (no git checkout) because the Flight runtime
-# cannot authenticate with private GitHub repos. The dbt project files are
-# emitted from the embedded variables below.
-#
-# To sync the embedded dbt project with the repository, update GIT_REVISION
-# in config.json and regenerate from the checked-out files.
-import io
+# The repo is public so we clone it directly — no embedded files.
 import json
 import os
 import re
-import shutil
+import subprocess
 import sys
-import tarfile
 import tempfile
-import urllib.request
 
 
 def env(name: str) -> str:
@@ -49,507 +41,23 @@ def resolve_credential(key: str) -> str | None:
     return None
 
 
-# ── Embedded dbt project files ──────────────────────────────────────────
-# These are generated from the repository at the GIT_REVISION below.
-# Update them when the dbt models change.
+REPO_URL = "https://github.com/pradipsodha-acceleratedata/motherduck-do.git"
 
-DBT_PROJECT_YML = """\
-name: motherduck_do
-version: '1.0.0'
-config-version: 2
 
-profile: flight
-
-model-paths: ['models']
-macro-paths: ['macros']
-test-paths: ['tests']
-seed-paths: ['seeds']
-snapshot-paths: ['snapshots']
-target-path: target
-clean-targets: ['target', 'dbt_packages']
-
-models:
-  motherduck_do:
-    staging:
-      +materialized: view
-    intermediate:
-      +materialized: view
-    marts:
-      +materialized: table
-"""
-
-SOURCES_YML = """\
-version: 2
-
-sources:
-  - name: salesforce
-    description: Salesforce CRM objects ingested via dlt verified source.
-    schema: main
-    tables:
-      - name: account
-        description: Salesforce Account objects (one row per account).
-      - name: contact
-        description: Salesforce Contact objects (one row per contact).
-"""
-
-DARTS_YML = """\
-version: 2
-
-models:
-  - name: dim_account
-    description: "One row per Salesforce Account. Grain: one row per account_id."
-    contracts:
-      enforced: true
-    columns:
-      - name: account_id
-        data_type: text
-        tests: [not_null, unique]
-      - name: account_name
-        data_type: text
-        tests: [not_null]
-      - name: type
-        data_type: text
-      - name: industry
-        data_type: text
-      - name: annual_revenue
-        data_type: double
-      - name: number_of_employees
-        data_type: integer
-      - name: ownership
-        data_type: text
-      - name: ticker_symbol
-        data_type: text
-      - name: rating
-        data_type: text
-      - name: phone
-        data_type: text
-      - name: fax
-        data_type: text
-      - name: website
-        data_type: text
-      - name: billing_street
-        data_type: text
-      - name: billing_city
-        data_type: text
-      - name: billing_state
-        data_type: text
-      - name: billing_postal_code
-        data_type: text
-      - name: billing_country
-        data_type: text
-      - name: shipping_street
-        data_type: text
-      - name: shipping_city
-        data_type: text
-      - name: shipping_state
-        data_type: text
-      - name: shipping_postal_code
-        data_type: text
-      - name: shipping_country
-        data_type: text
-      - name: description
-        data_type: text
-      - name: owner_id
-        data_type: text
-      - name: created_date
-        data_type: timestamp
-      - name: last_modified_date
-        data_type: timestamp
-      - name: system_modstamp
-        data_type: timestamp
-      - name: is_partner
-        data_type: boolean
-      - name: is_customer_portal
-        data_type: boolean
-      - name: clean_status
-        data_type: text
-      - name: customer_priority
-        data_type: text
-      - name: sla
-        data_type: text
-      - name: active
-        data_type: boolean
-      - name: number_of_locations
-        data_type: integer
-      - name: upsell_opportunity
-        data_type: text
-      - name: sla_serial_number
-        data_type: text
-      - name: sla_expiration_date
-        data_type: date
-      - name: last_viewed_date
-        data_type: timestamp
-      - name: last_referenced_date
-        data_type: timestamp
-      - name: _loaded_at
-        data_type: timestamp
-        description: Timestamp when this row was loaded.
-      - name: _dbt_invocation_id
-        data_type: text
-        description: Unique identifier for the dbt invocation.
-      - name: _git_sha
-        data_type: text
-        description: Git SHA of the commit that produced this row.
-
-  - name: dim_contact
-    description: "One row per Salesforce Contact. Grain: one row per contact_id."
-    contracts:
-      enforced: true
-    columns:
-      - name: contact_id
-        data_type: text
-        tests: [not_null, unique]
-      - name: salutation
-        data_type: text
-      - name: first_name
-        data_type: text
-      - name: last_name
-        data_type: text
-        tests: [not_null]
-      - name: contact_name
-        data_type: text
-      - name: email
-        data_type: text
-      - name: title
-        data_type: text
-      - name: phone
-        data_type: text
-      - name: fax
-        data_type: text
-      - name: mobile_phone
-        data_type: text
-      - name: department
-        data_type: text
-      - name: lead_source
-        data_type: text
-      - name: birthdate
-        data_type: date
-      - name: mailing_street
-        data_type: text
-      - name: mailing_city
-        data_type: text
-      - name: mailing_state
-        data_type: text
-      - name: mailing_postal_code
-        data_type: text
-      - name: mailing_country
-        data_type: text
-      - name: mailing_state_code
-        data_type: text
-      - name: mailing_country_code
-        data_type: text
-      - name: other_street
-        data_type: text
-      - name: other_city
-        data_type: text
-      - name: other_state
-        data_type: text
-      - name: other_postal_code
-        data_type: text
-      - name: other_country
-        data_type: text
-      - name: other_country_code
-        data_type: text
-      - name: assistant_phone
-        data_type: text
-      - name: assistant_name
-        data_type: text
-      - name: home_phone
-        data_type: text
-      - name: description
-        data_type: text
-      - name: account_id
-        data_type: text
-        description: "Foreign key to dim_account. Nullable: contacts may not be linked to an account."
-      - name: owner_id
-        data_type: text
-      - name: created_date
-        data_type: timestamp
-      - name: created_by_id
-        data_type: text
-      - name: last_modified_date
-        data_type: timestamp
-      - name: last_modified_by_id
-        data_type: text
-      - name: system_modstamp
-        data_type: timestamp
-      - name: is_email_bounced
-        data_type: boolean
-      - name: photo_url
-        data_type: text
-      - name: clean_status
-        data_type: text
-      - name: is_priority_record
-        data_type: boolean
-      - name: contact_level
-        data_type: text
-      - name: languages
-        data_type: text
-      - name: last_viewed_date
-        data_type: timestamp
-      - name: last_referenced_date
-        data_type: timestamp
-      - name: last_activity_date
-        data_type: timestamp
-      - name: _loaded_at
-        data_type: timestamp
-        description: Timestamp when this row was loaded.
-      - name: _dbt_invocation_id
-        data_type: text
-        description: Unique identifier for the dbt invocation.
-      - name: _git_sha
-        data_type: text
-        description: Git SHA of the commit that produced this row.
-"""
-
-GIT_SHA_MACRO = """\
-{%- macro project_git_sha() -%}
-  {{- var('git_sha', env_var('GIT_SHA', 'local')) | trim -}}
-{%- endmacro -%}
-"""
-
-SILVER_ACCOUNT_SQL = """\
-WITH source AS (
-    SELECT
-        id AS account_id,
-        is_deleted,
-        name AS account_name,
-        type,
-        billing_street,
-        billing_city,
-        billing_state,
-        billing_postal_code,
-        billing_country,
-        billing_state_code,
-        billing_country_code,
-        shipping_street,
-        shipping_city,
-        shipping_state,
-        shipping_postal_code,
-        shipping_country,
-        shipping_country_code,
-        shipping_state_code,
-        phone,
-        fax,
-        account_number,
-        website,
-        photo_url,
-        sic,
-        industry,
-        annual_revenue,
-        number_of_employees,
-        ownership,
-        ticker_symbol,
-        description,
-        rating,
-        owner_id,
-        created_date,
-        created_by_id,
-        last_modified_date,
-        last_modified_by_id,
-        system_modstamp,
-        is_partner,
-        is_customer_portal,
-        clean_status,
-        customer_priority__c AS customer_priority,
-        sla__c AS sla,
-        active__c AS active,
-        numberof_locations__c AS number_of_locations,
-        upsell_opportunity__c AS upsell_opportunity,
-        sla_serial_number__c AS sla_serial_number,
-        sla_expiration_date__c AS sla_expiration_date,
-        last_viewed_date,
-        last_referenced_date,
-        _dlt_load_id,
-        _dlt_id
-    FROM {{ source('salesforce', 'account') }}
-    WHERE is_deleted = false
-      AND id IS NOT NULL
-)
-
-SELECT * FROM source
-"""
-
-SILVER_CONTACT_SQL = """\
-WITH source AS (
-    SELECT
-        id AS contact_id,
-        is_deleted,
-        account_id,
-        last_name,
-        first_name,
-        salutation,
-        name AS contact_name,
-        email,
-        title,
-        phone,
-        fax,
-        mobile_phone,
-        department,
-        lead_source,
-        birthdate,
-        mailing_street,
-        mailing_city,
-        mailing_state,
-        mailing_postal_code,
-        mailing_country,
-        mailing_state_code,
-        mailing_country_code,
-        other_street,
-        other_city,
-        other_state,
-        other_postal_code,
-        other_country,
-        other_country_code,
-        assistant_phone,
-        assistant_name,
-        home_phone,
-        description,
-        owner_id,
-        created_date,
-        created_by_id,
-        last_modified_date,
-        last_modified_by_id,
-        system_modstamp,
-        is_email_bounced,
-        photo_url,
-        clean_status,
-        is_priority_record,
-        level__c AS contact_level,
-        languages__c AS languages,
-        last_viewed_date,
-        last_referenced_date,
-        last_activity_date,
-        _dlt_load_id,
-        _dlt_id
-    FROM {{ source('salesforce', 'contact') }}
-    WHERE is_deleted = false
-      AND id IS NOT NULL
-)
-
-SELECT * FROM source
-"""
-
-DIM_ACCOUNT_SQL = """\
-{{ config(materialized='table') }}
-
-WITH final AS (
-    SELECT
-        account_id,
-        account_name,
-        type,
-        industry,
-        annual_revenue,
-        number_of_employees,
-        ownership,
-        ticker_symbol,
-        rating,
-        phone,
-        fax,
-        website,
-        billing_street,
-        billing_city,
-        billing_state,
-        billing_postal_code,
-        billing_country,
-        shipping_street,
-        shipping_city,
-        shipping_state,
-        shipping_postal_code,
-        shipping_country,
-        description,
-        owner_id,
-        created_date,
-        last_modified_date,
-        system_modstamp,
-        is_partner,
-        is_customer_portal,
-        clean_status,
-        customer_priority,
-        sla,
-        active,
-        number_of_locations,
-        upsell_opportunity,
-        sla_serial_number,
-        sla_expiration_date,
-        last_viewed_date,
-        last_referenced_date,
-        CURRENT_TIMESTAMP AS _loaded_at,
-        '{{ invocation_id }}' AS _dbt_invocation_id,
-        '{{ project_git_sha() }}' AS _git_sha
-    FROM {{ ref('silver_salesforce_account') }}
-)
-
-SELECT * FROM final
-"""
-
-DIM_CONTACT_SQL = """\
-{{ config(materialized='table') }}
-
-WITH final AS (
-    SELECT
-        contact_id,
-        salutation,
-        first_name,
-        last_name,
-        contact_name,
-        email,
-        title,
-        phone,
-        fax,
-        mobile_phone,
-        department,
-        lead_source,
-        birthdate,
-        mailing_street,
-        mailing_city,
-        mailing_state,
-        mailing_postal_code,
-        mailing_country,
-        mailing_state_code,
-        mailing_country_code,
-        other_street,
-        other_city,
-        other_state,
-        other_postal_code,
-        other_country,
-        other_country_code,
-        assistant_phone,
-        assistant_name,
-        home_phone,
-        description,
-        account_id,
-        owner_id,
-        created_date,
-        created_by_id,
-        last_modified_date,
-        last_modified_by_id,
-        system_modstamp,
-        is_email_bounced,
-        photo_url,
-        clean_status,
-        is_priority_record,
-        contact_level,
-        languages,
-        last_viewed_date,
-        last_referenced_date,
-        last_activity_date,
-        CURRENT_TIMESTAMP AS _loaded_at,
-        '{{ invocation_id }}' AS _dbt_invocation_id,
-        '{{ project_git_sha() }}' AS _git_sha
-    FROM {{ ref('silver_salesforce_contact') }}
-)
-
-SELECT * FROM final
-"""
-
-# ── Embedded dlt pipeline ──────────────────────────────────────────────
-
-DLT_PIPELINE_SRC = r"""import dlt
+# Simplified dlt pipeline for Flight runtime (no vibedata.dlt.duckdb dependency).
+# Written into the cloned repo's ingestion/ dir so it resolves the vendored
+# sources.salesforce package from there.
+FLIGHT_PIPELINE_SRC = """\
+import dlt
 import os
+import sys
 
-def salesforce_source():
-    from sources.salesforce import salesforce_source as _sf_source
+# __file__ is in the ingestion/ dir, so no extra "ingestion" suffix needed
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from sources.salesforce import salesforce_source as _sf_source
+
+def make_source():
     source = _sf_source.clone(name="salesforce", section="salesforce")().with_resources("account", "contact")
 
     source.account.apply_hints(
@@ -571,48 +79,17 @@ pipeline = dlt.pipeline(
 """
 
 
-def write_dbt_project(root: str) -> str:
-    """Write the embedded dbt project files to disk and return the project root."""
-    project_dir = os.path.join(root, "transformation")
-    models_staging = os.path.join(project_dir, "models", "staging")
-    models_intermediate = os.path.join(project_dir, "models", "intermediate")
-    models_marts = os.path.join(project_dir, "models", "marts")
-    macros_dir = os.path.join(project_dir, "macros")
-    tests_dir = os.path.join(project_dir, "tests")
-    seeds_dir = os.path.join(project_dir, "seeds")
-    snapshots_dir = os.path.join(project_dir, "snapshots")
-
-    for d in [models_staging, models_intermediate, models_marts, macros_dir,
-              tests_dir, seeds_dir, snapshots_dir]:
-        os.makedirs(d, exist_ok=True)
-
-    with open(os.path.join(project_dir, "dbt_project.yml"), "w") as f:
-        f.write(DBT_PROJECT_YML)
-    with open(os.path.join(models_staging, "_sources.yml"), "w") as f:
-        f.write(SOURCES_YML)
-    with open(os.path.join(models_marts, "marts.yml"), "w") as f:
-        f.write(DARTS_YML)
-    with open(os.path.join(macros_dir, "git_sha.sql"), "w") as f:
-        f.write(GIT_SHA_MACRO)
-    with open(os.path.join(models_intermediate, "silver_salesforce_account.sql"), "w") as f:
-        f.write(SILVER_ACCOUNT_SQL)
-    with open(os.path.join(models_intermediate, "silver_salesforce_contact.sql"), "w") as f:
-        f.write(SILVER_CONTACT_SQL)
-    with open(os.path.join(models_marts, "dim_account.sql"), "w") as f:
-        f.write(DIM_ACCOUNT_SQL)
-    with open(os.path.join(models_marts, "dim_contact.sql"), "w") as f:
-        f.write(DIM_CONTACT_SQL)
-
-    return project_dir
-
-
-def write_pipeline_code(root: str) -> str:
-    """Write the dlt pipeline script to disk and return the path."""
-    pipeline_root = os.path.join(root, "ingestion")
-    os.makedirs(os.path.join(pipeline_root, "sources"), exist_ok=True)
-    with open(os.path.join(pipeline_root, "salesforce_pipeline.py"), "w") as f:
-        f.write(DLT_PIPELINE_SRC)
-    return pipeline_root
+def clone_repo(workdir: str, revision: str) -> str:
+    """Clone the public repo at the given revision and return the checkout path."""
+    dest = os.path.join(workdir, "repo")
+    subprocess.run(["git", "clone", "--depth", "1", REPO_URL, dest],
+                   check=True, capture_output=True, text=True)
+    subprocess.run(["git", "-C", dest, "fetch", "--depth", "1", "origin", revision],
+                   check=True, capture_output=True, text=True)
+    subprocess.run(["git", "-C", dest, "checkout", revision],
+                   check=True, capture_output=True, text=True)
+    print("cloned repo at revision:", revision)
+    return dest
 
 
 def write_profile(directory: str, database: str, schema: str) -> None:
@@ -627,8 +104,8 @@ def write_profile(directory: str, database: str, schema: str) -> None:
             f"      schema: {schema}\n")
 
 
-def run_dlt(workdir: str, database: str) -> bool:
-    """Run the dlt Salesforce pipeline.
+def run_dlt(repo_root: str, database: str) -> bool:
+    """Run the dlt Salesforce pipeline from the Flight-specific inline script.
 
     Returns True on success, False when credentials are unavailable (sandbox).
     Exits the Flight on a load failure.
@@ -646,16 +123,22 @@ def run_dlt(workdir: str, database: str) -> bool:
     os.environ["SOURCES__SALESFORCE__CREDENTIALS__SECURITY_TOKEN"] = token
     os.environ["DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE"] = database
 
-    sys.path.insert(0, os.path.join(workdir, "ingestion"))
+    # Add ingestion/ to sys.path so `from sources.salesforce import ...` resolves
+    sys.path.insert(0, os.path.join(repo_root, "ingestion"))
+
+    # Write the Flight-specific pipeline script and exec it
+    pipeline_dir = os.path.join(repo_root, "ingestion")
+    flight_pipeline_path = os.path.join(pipeline_dir, "_flight_pipeline.py")
+    with open(flight_pipeline_path, "w") as f:
+        f.write(FLIGHT_PIPELINE_SRC)
 
     import importlib.util
-    pipeline_path = os.path.join(workdir, "ingestion", "salesforce_pipeline.py")
-    pipeline_spec = importlib.util.spec_from_file_location("pipeline", pipeline_path)
+    pipeline_spec = importlib.util.spec_from_file_location("_flight_pipeline", flight_pipeline_path)
     pipeline_mod = importlib.util.module_from_spec(pipeline_spec)
     pipeline_spec.loader.exec_module(pipeline_mod)
 
     load_info = pipeline_mod.pipeline.run(
-        pipeline_mod.salesforce_source(),
+        pipeline_mod.make_source(),
         write_disposition="merge",
         loader_file_format="parquet",
     )
@@ -708,7 +191,8 @@ def main() -> None:
     database = identifier("DESTINATION_DATABASE")
     schema = env("DBT_SCHEMA")
     selector = env("DBT_SELECT")
-    os.environ["GIT_SHA"] = env("GIT_REVISION")
+    revision = env("GIT_REVISION")
+    os.environ["GIT_SHA"] = revision
 
     import duckdb
     con = duckdb.connect("md:")
@@ -718,13 +202,13 @@ def main() -> None:
     workdir = tempfile.mkdtemp()
     original_cwd = os.getcwd()
 
-    # Emit embedded dbt project files to disk
-    project_dir = write_dbt_project(workdir)
-    write_pipeline_code(workdir)
-    print("dbt project written to:", project_dir)
+    # Clone the public repo
+    repo_root = clone_repo(workdir, revision)
+    project_dir = os.path.join(repo_root, "transformation")
+    print("dbt project dir:", project_dir)
 
     # Step 1: dlt ingestion (skipped gracefully when credentials absent)
-    run_dlt(workdir, database)
+    run_dlt(repo_root, database)
 
     # Step 2: dbt transformation
     run_dbt(database, schema, selector, project_dir)

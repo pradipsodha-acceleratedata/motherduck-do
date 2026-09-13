@@ -3,5 +3,5 @@
     "DESTINATION_DATABASE": "prd",
     "DBT_SCHEMA": "main",
     "DBT_SELECT": "silver_salesforce_account silver_salesforce_contact dim_account dim_contact",
-    "GIT_REVISION": "886595d1009771a90976e0de2a4bf89ace2ae876"
+    "GIT_REVISION": "522196563aa41f41c7312c489f3fbb6254b69176"
 }

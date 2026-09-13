@@ -1,2 +1,4 @@
 dlt[motherduck]
 dbt-duckdb
+simple-salesforce
+pendulum
