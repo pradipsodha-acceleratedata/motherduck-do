@@ -15,3 +15,109 @@ models:
         description: How many of the three pollutants carry a value for this city-year (0-3).
         tests:
           - not_null
+
+  - name: silver_salesforce_account
+    description: Cleaned, typed Account data from Salesforce bronze. One row per account (non-deleted, non-null ID).
+    columns:
+      - name: account_id
+        description: Salesforce Account ID.
+        tests:
+          - unique
+          - not_null
+      - name: account_name
+        description: Account name.
+      - name: is_deleted
+        description: Soft-delete flag; filtered to FALSE in this model.
+      - name: type
+        description: Account type (e.g. Customer - Direct, Prospect).
+      - name: industry
+        description: Industry classification.
+      - name: annual_revenue
+        description: Estimated annual revenue.
+      - name: number_of_employees
+        description: Number of employees.
+      - name: ownership
+        description: Ownership type (e.g. Private, Public).
+      - name: rating
+        description: Account rating (e.g. Hot, Warm, Cold).
+      - name: phone
+        description: Primary phone number.
+      - name: website
+        description: Account website URL.
+      - name: billing_city
+        description: Billing city.
+      - name: billing_state
+        description: Billing state/province.
+      - name: billing_country
+        description: Billing country.
+      - name: shipping_city
+        description: Shipping city.
+      - name: shipping_state
+        description: Shipping state/province.
+      - name: shipping_country
+        description: Shipping country.
+      - name: owner_id
+        description: Salesforce User ID of the account owner.
+      - name: created_date
+        description: Record creation timestamp.
+      - name: last_modified_date
+        description: Last modification timestamp.
+      - name: customer_priority
+        description: Customer priority rating.
+      - name: sla
+        description: SLA classification.
+      - name: active
+        description: Active status flag.
+      - name: upsell_opportunity
+        description: Upsell opportunity rating.
+      - name: _dlt_load_id
+        description: dlt load identifier for provenance.
+      - name: _dlt_id
+        description: dlt row-level unique identifier.
+
+  - name: silver_salesforce_contact
+    description: Cleaned, typed Contact data from Salesforce bronze. One row per contact (non-deleted, non-null ID).
+    columns:
+      - name: contact_id
+        description: Salesforce Contact ID.
+        tests:
+          - unique
+          - not_null
+      - name: is_deleted
+        description: Soft-delete flag; filtered to FALSE in this model.
+      - name: account_id
+        description: Parent Salesforce Account ID.
+      - name: first_name
+        description: Contact first name.
+      - name: last_name
+        description: Contact last name.
+      - name: contact_name
+        description: Full contact name (concatenated by Salesforce).
+      - name: email
+        description: Contact email address.
+      - name: title
+        description: Job title.
+      - name: phone
+        description: Primary phone number.
+      - name: mobile_phone
+        description: Mobile phone number.
+      - name: department
+        description: Department name.
+      - name: lead_source
+        description: Lead source classification.
+      - name: owner_id
+        description: Salesforce User ID of the contact owner.
+      - name: created_date
+        description: Record creation timestamp.
+      - name: last_modified_date
+        description: Last modification timestamp.
+      - name: is_email_bounced
+        description: Whether the contact's email has bounced.
+      - name: contact_level
+        description: Contact level classification.
+      - name: languages
+        description: Languages spoken by the contact.
+      - name: _dlt_load_id
+        description: dlt load identifier for provenance.
+      - name: _dlt_id
+        description: dlt row-level unique identifier.
