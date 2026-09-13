@@ -115,9 +115,9 @@ git commit -m "discover Salesforce schema and finalize pipeline inventory"
 - Consumes: Salesforce source connection (Task 1), discovered schema (Task 2)
 - Produces: `ingestion/salesforce_pipeline.py` — runnable dlt pipeline with `replace` disposition
 
-- [ ] **Step 1: Invoke `generating-dlt-pipeline` for Account and Contact resources**
+- [x] **Step 1: Invoke `generating-dlt-pipeline` for Account and Contact resources**
   Generates `ingestion/salesforce_pipeline.py` with both resources, `replace` disposition, schema contracts.
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add ingestion/
@@ -294,3 +294,12 @@ git commit -m "add pipeline, model, and orchestration documentation"
 - **Account**: 78 fields (standard + custom `__c` fields). Resource uses `write_disposition=merge` with incremental on `LastModifiedDate` (per verified source code), not `replace` as initially planned — pipeline inventory updated.
 - **Contact**: ~55 fields (standard + custom `__c` fields). Resource uses `write_disposition=replace`. References Account via `AccountId`.
 - Pipeline inventory rows updated with correct write_disposition and incremental_cursor.
+
+*Task 3:* dlt pipeline authored and validated:
+- `ingestion/salesforce_pipeline.py` — MotherDuck destination, `main` dataset, Account+Contact resources
+- Vendor connector at `ingestion/sources/salesforce/`
+- Connector deps in `ingestion/requirements.txt`
+- Account: `merge` on LastModifiedDate; Contact: `replace`
+- Schema contract: `columns freeze / tables evolve / data_type freeze`
+- First-run safety: `dev_mode=True`, `.add_limit(1)`, `write_disposition="replace"`
+- SCHEMA_CONTRACT_OK, DRY_RUN_OK — committed 78844cd
