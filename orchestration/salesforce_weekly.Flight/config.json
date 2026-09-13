@@ -1,0 +1,10 @@
+{
+    "flight_secret_names": ["salesforce"],
+    "DESTINATION_DATABASE": "prd",
+    "DBT_SCHEMA": "main",
+    "DBT_SELECT": "silver_salesforce_account silver_salesforce_contact dim_account dim_contact",
+    "GIT_REPO": "https://github.com/pradipsodha-acceleratedata/motherduck-do.git",
+    "GIT_REVISION": "33d7b50ea00323397c7d5c8dc12ddf04bba5772e",
+    "DBT_PROJECT_SUBDIR": "transformation",
+    "schedule_cron": "0 6 * * 1"
+}
