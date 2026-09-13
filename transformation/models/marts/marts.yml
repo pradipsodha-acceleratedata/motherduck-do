@@ -40,3 +40,210 @@ models:
                 - interim_target_3
                 - above_interim_targets
                 - not_reported
+
+  - name: dim_account
+    description: "One row per Salesforce Account. Grain: one row per account_id."
+    contracts:
+      enforced: true
+    columns:
+      - name: account_id
+        description: Salesforce Account ID.
+        data_type: text
+        tests:
+          - not_null
+          - unique
+      - name: account_name
+        data_type: text
+        tests:
+          - not_null
+      - name: type
+        data_type: text
+      - name: industry
+        data_type: text
+      - name: annual_revenue
+        data_type: double
+      - name: number_of_employees
+        data_type: integer
+      - name: ownership
+        data_type: text
+      - name: ticker_symbol
+        data_type: text
+      - name: rating
+        data_type: text
+      - name: phone
+        data_type: text
+      - name: fax
+        data_type: text
+      - name: website
+        data_type: text
+      - name: billing_street
+        data_type: text
+      - name: billing_city
+        data_type: text
+      - name: billing_state
+        data_type: text
+      - name: billing_postal_code
+        data_type: text
+      - name: billing_country
+        data_type: text
+      - name: shipping_street
+        data_type: text
+      - name: shipping_city
+        data_type: text
+      - name: shipping_state
+        data_type: text
+      - name: shipping_postal_code
+        data_type: text
+      - name: shipping_country
+        data_type: text
+      - name: description
+        data_type: text
+      - name: owner_id
+        data_type: text
+      - name: created_date
+        data_type: timestamp
+      - name: last_modified_date
+        data_type: timestamp
+      - name: system_modstamp
+        data_type: timestamp
+      - name: is_partner
+        data_type: boolean
+      - name: is_customer_portal
+        data_type: boolean
+      - name: clean_status
+        data_type: text
+      - name: customer_priority
+        data_type: text
+      - name: sla
+        data_type: text
+      - name: active
+        data_type: boolean
+      - name: number_of_locations
+        data_type: integer
+      - name: upsell_opportunity
+        data_type: text
+      - name: sla_serial_number
+        data_type: text
+      - name: sla_expiration_date
+        data_type: date
+      - name: last_viewed_date
+        data_type: timestamp
+      - name: last_referenced_date
+        data_type: timestamp
+      - name: _loaded_at
+        data_type: timestamp
+        description: Timestamp when this row was loaded.
+      - name: _dbt_invocation_id
+        data_type: text
+        description: Unique identifier for the dbt invocation.
+      - name: _git_sha
+        data_type: text
+        description: Git SHA of the commit that produced this row.
+
+  - name: dim_contact
+    description: "One row per Salesforce Contact. Grain: one row per contact_id."
+    contracts:
+      enforced: true
+    columns:
+      - name: contact_id
+        description: Salesforce Contact ID.
+        data_type: text
+        tests:
+          - not_null
+          - unique
+      - name: salutation
+        data_type: text
+      - name: first_name
+        data_type: text
+        tests:
+          - not_null
+      - name: last_name
+        data_type: text
+        tests:
+          - not_null
+      - name: full_name
+        data_type: text
+      - name: email
+        data_type: text
+      - name: phone
+        data_type: text
+      - name: fax
+        data_type: text
+      - name: mobile_phone
+        data_type: text
+      - name: assistant_phone
+        data_type: text
+      - name: reports_to_id
+        data_type: text
+      - name: mailing_street
+        data_type: text
+      - name: mailing_city
+        data_type: text
+      - name: mailing_state
+        data_type: text
+      - name: mailing_postal_code
+        data_type: text
+      - name: mailing_country
+        data_type: text
+      - name: other_street
+        data_type: text
+      - name: other_city
+        data_type: text
+      - name: other_state
+        data_type: text
+      - name: other_postal_code
+        data_type: text
+      - name: other_country
+        data_type: text
+      - name: account_id
+        description: Foreign key to dim_account.
+        data_type: text
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_account')
+                field: account_id
+      - name: owner_id
+        data_type: text
+      - name: title
+        data_type: text
+      - name: department
+        data_type: text
+      - name: birth_date
+        data_type: date
+      - name: lead_source
+        data_type: text
+      - name: description
+        data_type: text
+      - name: is_email_opted_out
+        data_type: boolean
+      - name: is_fax_opted_out
+        data_type: boolean
+      - name: created_date
+        data_type: timestamp
+      - name: last_modified_date
+        data_type: timestamp
+      - name: system_modstamp
+        data_type: timestamp
+      - name: last_viewed_date
+        data_type: timestamp
+      - name: last_referenced_date
+        data_type: timestamp
+      - name: email_bounced_reason
+        data_type: text
+      - name: email_bounced_date
+        data_type: date
+      - name: clean_status
+        data_type: text
+      - name: has_opted_out_of_tracking
+        data_type: boolean
+      - name: _loaded_at
+        data_type: timestamp
+        description: Timestamp when this row was loaded.
+      - name: _dbt_invocation_id
+        data_type: text
+        description: Unique identifier for the dbt invocation.
+      - name: _git_sha
+        data_type: text
+        description: Git SHA of the commit that produced this row.

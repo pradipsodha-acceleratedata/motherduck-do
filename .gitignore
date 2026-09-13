@@ -4,3 +4,4 @@ logs/
 *.log
 .user.yml
 **/secrets.toml
+**/__pycache__/
