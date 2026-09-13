@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: stg_air_quality
+    description: One row per city, year and source version, with WHO column names normalised.
+    columns:
+      - name: country_code
+        description: ISO-3166 alpha-3 code as published by WHO.
+        tests:
+          - not_null
+      - name: city_name
+        description: City the measurement is attributed to.
+        tests:
+          - not_null
+      - name: measurement_year
+        description: Calendar year of the measurement.
+        tests:
+          - not_null

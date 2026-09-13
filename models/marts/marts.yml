@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: dim_city
+    description: One row per city, with attributes taken from its most recent measured year.
+    columns:
+      - name: city_key
+        description: Surrogate key for the city.
+        tests:
+          - not_null
+          - unique
+      - name: country_code
+        tests:
+          - not_null
+      - name: measured_years
+        description: How many distinct years this city has been measured in.
+        tests:
+          - not_null
+
+  - name: fct_air_quality_yearly
+    description: One row per city and year, with pollutant concentrations and the PM2.5 guideline band.
+    columns:
+      - name: city_key
+        description: Foreign key to dim_city.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_city')
+              field: city_key
+      - name: measurement_year
+        tests:
+          - not_null
+      - name: pm25_guideline_band
+        description: Which WHO PM2.5 band the city-year falls into, or not_reported.
+        tests:
+          - accepted_values:
+              values:
+                - within_guideline
+                - interim_target_4
+                - interim_target_3
+                - above_interim_targets
+                - not_reported

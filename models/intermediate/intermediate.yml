@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: int_city_year_pollutants
+    description: One row per country, city and year, carrying the city key and per-pollutant annual-coverage flags.
+    columns:
+      - name: city_key
+        description: Surrogate key for the city, stable across years.
+        tests:
+          - not_null
+      - name: measurement_year
+        tests:
+          - not_null
+      - name: pollutants_reported
+        description: How many of the three pollutants carry a value for this city-year (0-3).
+        tests:
+          - not_null

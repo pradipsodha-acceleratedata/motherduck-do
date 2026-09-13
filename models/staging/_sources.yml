@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: who
+    description: WHO reference data published as a shared MotherDuck sample database.
+    database: sample_data
+    schema: who
+    tables:
+      - name: ambient_air_quality
+        description: One measurement row per city, year and monitoring programme version.
