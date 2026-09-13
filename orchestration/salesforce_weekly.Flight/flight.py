@@ -12,12 +12,14 @@
 #
 # RUN CONTRACT — this file is deployed and executed only by
 # `running-orchestration-in-sandbox`, which passes it as the Flight's source_code.
+import io
 import json
 import os
 import re
-import subprocess
 import sys
+import tarfile
 import tempfile
+import urllib.request
 
 
 def env(name: str) -> str:
@@ -34,12 +36,36 @@ def identifier(name: str) -> str:
     return value
 
 
-def checkout(repo: str, revision: str, destination: str) -> None:
-    subprocess.run(["git", "init", "--quiet", destination], check=True)
-    subprocess.run(["git", "-C", destination, "remote", "add", "origin", repo], check=True)
-    subprocess.run(["git", "-C", destination, "fetch", "--quiet", "--depth", "1",
-                    "origin", revision], check=True)
-    subprocess.run(["git", "-C", destination, "checkout", "--quiet", "FETCH_HEAD"], check=True)
+def _archive_url(repo: str, revision: str) -> str:
+    """Convert a git remote URL to a GitHub archive tarball URL.
+
+    Avoids git's interactive credential prompt in the non-TTY Flight runtime.
+    Works for any public GitHub repository.
+    """
+    repo = repo.rstrip("/").removesuffix(".git")
+    if repo.startswith("https://"):
+        return f"{repo}/archive/{revision}.tar.gz"
+    if repo.startswith("git@github.com:"):
+        owner_repo = repo.removeprefix("git@github.com:")
+        return f"https://github.com/{owner_repo}/archive/{revision}.tar.gz"
+    raise ValueError(f"unsupported repo format: {repo}")
+
+
+def checkout(repo: str, revision: str, destination: str) -> str:
+    """Download repo archive via HTTPS tarball and extract to destination.
+
+    Returns the path to the extracted repository root.
+    """
+    url = _archive_url(repo, revision)
+    print(f"downloading {url} ...")
+    resp = urllib.request.urlopen(url)
+    data = resp.read()
+    with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tf:
+        tf.extractall(destination)
+    members = os.listdir(destination)
+    root = os.path.join(destination, members[0]) if members else destination
+    print(f"extracted to {root}")
+    return root
 
 
 def write_profile(directory: str, database: str, schema: str) -> None:
@@ -154,16 +180,16 @@ def main() -> None:
 
     workdir = tempfile.mkdtemp()
     original_cwd = os.getcwd()
-    checkout(env("GIT_REPO"), revision, workdir)
+    root = checkout(env("GIT_REPO"), revision, workdir)
     print("checked out revision:", revision)
 
     project_subdir = env("DBT_PROJECT_SUBDIR")
-    project_dir = os.path.normpath(os.path.join(workdir, project_subdir))
+    project_dir = os.path.normpath(os.path.join(root, project_subdir))
     if not os.path.exists(os.path.join(project_dir, "dbt_project.yml")):
         raise FileNotFoundError(
             f"no dbt_project.yml under DBT_PROJECT_SUBDIR={project_subdir!r}")
 
-    os.chdir(workdir)
+    os.chdir(root)
 
     # Step 1: dlt ingestion (skipped gracefully when credentials absent)
     run_dlt(database)
