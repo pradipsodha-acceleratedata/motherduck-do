@@ -162,13 +162,13 @@ git commit -m "sandbox run: land Salesforce bronze tables"
 - Consumes: bronze table names from ephemeral run (Task 4)
 - Produces: Updated `_sources.yml` with Salesforce source entries
 
-- [ ] **Step 1: Invoke `registering-dbt-sources`**
+- [x] **Step 1: Invoke `registering-dbt-sources`**
   Registers the landed bronze tables as dbt sources in `transformation/models/staging/_sources.yml`.
-- [ ] **Step 2: Run `dbt parse` to validate**
+- [x] **Step 2: Run `dbt parse` to validate**
   ```bash
   dbt parse --project-dir transformation
   ```
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add transformation/models/staging/_sources.yml
@@ -188,13 +188,13 @@ git commit -m "register Salesforce bronze tables as dbt sources"
 - Consumes: dbt source definitions (Task 5)
 - Produces: Silver dbt model files (views) with column-level tests
 
-- [ ] **Step 1: Invoke `generating-dbt-model` for `silver.salesforce_account`**
+  - [x] **Step 1: Invoke `generating-dbt-model` for `silver.salesforce_account`**
   Generate the SQL view — rename to snake_case, soft-delete filter (`is_deleted = false`), drop null IDs.
-- [ ] **Step 2: Invoke `generating-dbt-model` for `silver.salesforce_contact`**
+- [x] **Step 2: Invoke `generating-dbt-model` for `silver.salesforce_contact`**
   Generate the SQL view — same conventions.
-- [ ] **Step 3: Invoke `dbt-unit-testing` for silver models**
+- [x] **Step 3: Invoke `dbt-unit-testing` for silver models**
   Tests: unique + not-null on `account_id`/`contact_id`, accepted values for `is_deleted`.
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add transformation/models/intermediate/
@@ -220,7 +220,7 @@ git commit -m "generate silver Salesforce dbt models with tests"
   Generate the table — all standard fields, preserve `account_id`, control columns, unique key `contact_id`.
 - [ ] **Step 3: Invoke `dbt-unit-testing` for gold models**
   Tests: unique + not-null on keys, relationships (`account_id` → `dim_account`).
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add transformation/models/marts/
@@ -270,7 +270,7 @@ git commit -m "sandbox dbt build: silver views and gold tables"
   ```
 - [ ] **Step 3: Sandbox run of Flight**
   Invoke `running-orchestration-in-sandbox` against ephemeral database.
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add orchestration/
@@ -284,7 +284,7 @@ git commit -m "generate weekly Salesforce MotherDuck Flight"
 - [ ] **Step 1: Invoke `documenting-dlt-pipelines`** for the Salesforce pipeline
 - [ ] **Step 2: Invoke `documenting-dbt-models`** for silver + gold models
 - [ ] **Step 3: Invoke `documenting-orchestration`** for the Flight
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs/
