@@ -28,8 +28,8 @@
 
 | resource | entry_point | columns | tables | data_type | write_disposition | incremental_cursor | notes | status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| account | salesforce_source | freeze | evolve | freeze | replace | | primary_key=Id | working |
-| contact | salesforce_source | freeze | evolve | freeze | replace | | primary_key=Id, references Account via AccountId | working |
+| account | salesforce_source | freeze | evolve | freeze | merge | LastModifiedDate | primary_key=Id; 78 fields incl. custom; source uses merge/incremental, not replace | working |
+| contact | salesforce_source | freeze | evolve | freeze | replace | | primary_key=Id, references Account via AccountId; ~55 fields incl. custom | working |
 
 ### Transformation scope
 
@@ -288,4 +288,9 @@ git commit -m "add pipeline, model, and orchestration documentation"
 
 ## Execution evidence
 
-*Pending — appended as each task completes.*
+*Task 1:* Salesforce source configured (`ingestion/.dlt/config.toml`), secrets created (`local_toml`), connection verified with live data — Account (2 rows) and Contact (2 rows) fetched. Committed dd7a6cd.
+
+*Task 2:* Schema discovered from live Salesforce API:
+- **Account**: 78 fields (standard + custom `__c` fields). Resource uses `write_disposition=merge` with incremental on `LastModifiedDate` (per verified source code), not `replace` as initially planned — pipeline inventory updated.
+- **Contact**: ~55 fields (standard + custom `__c` fields). Resource uses `write_disposition=replace`. References Account via `AccountId`.
+- Pipeline inventory rows updated with correct write_disposition and incremental_cursor.
