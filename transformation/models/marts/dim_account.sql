@@ -1,4 +1,6 @@
-WITH source AS (
+{{ config(materialized='table') }}
+
+WITH final AS (
     SELECT
         account_id,
         account_name,
@@ -38,18 +40,11 @@ WITH source AS (
         sla_serial_number,
         sla_expiration_date,
         last_viewed_date,
-        last_referenced_date
-    FROM {{ ref('silver_salesforce_account') }}
-)
-
-final AS (
-    -- one row per account_id
-    SELECT
-        *,
+        last_referenced_date,
         CURRENT_TIMESTAMP AS _loaded_at,
         '{{ invocation_id }}' AS _dbt_invocation_id,
         '{{ project_git_sha() }}' AS _git_sha
-    FROM source
+    FROM {{ ref('silver_salesforce_account') }}
 )
 
 SELECT * FROM final

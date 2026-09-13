@@ -1,55 +1,57 @@
-WITH source AS (
+{{ config(materialized='table') }}
+
+WITH final AS (
     SELECT
         contact_id,
         salutation,
         first_name,
         last_name,
-        full_name,
+        contact_name,
         email,
+        title,
         phone,
         fax,
         mobile_phone,
-        assistant_phone,
-        reports_to_id,
+        department,
+        lead_source,
+        birthdate,
         mailing_street,
         mailing_city,
         mailing_state,
         mailing_postal_code,
         mailing_country,
+        mailing_state_code,
+        mailing_country_code,
         other_street,
         other_city,
         other_state,
         other_postal_code,
         other_country,
+        other_country_code,
+        assistant_phone,
+        assistant_name,
+        home_phone,
+        description,
         account_id,
         owner_id,
-        title,
-        department,
-        birth_date,
-        lead_source,
-        description,
-        is_email_opted_out,
-        is_fax_opted_out,
         created_date,
+        created_by_id,
         last_modified_date,
+        last_modified_by_id,
         system_modstamp,
+        is_email_bounced,
+        photo_url,
+        clean_status,
+        is_priority_record,
+        contact_level,
+        languages,
         last_viewed_date,
         last_referenced_date,
-        email_bounced_reason,
-        email_bounced_date,
-        clean_status,
-        has_opted_out_of_tracking
-    FROM {{ ref('silver_salesforce_contact') }}
-)
-
-final AS (
-    -- one row per contact_id
-    SELECT
-        *,
+        last_activity_date,
         CURRENT_TIMESTAMP AS _loaded_at,
         '{{ invocation_id }}' AS _dbt_invocation_id,
         '{{ project_git_sha() }}' AS _git_sha
-    FROM source
+    FROM {{ ref('silver_salesforce_contact') }}
 )
 
 SELECT * FROM final

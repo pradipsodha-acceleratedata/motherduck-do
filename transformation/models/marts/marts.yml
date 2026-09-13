@@ -155,15 +155,15 @@ models:
         data_type: text
       - name: first_name
         data_type: text
-        tests:
-          - not_null
       - name: last_name
         data_type: text
         tests:
           - not_null
-      - name: full_name
+      - name: contact_name
         data_type: text
       - name: email
+        data_type: text
+      - name: title
         data_type: text
       - name: phone
         data_type: text
@@ -171,10 +171,12 @@ models:
         data_type: text
       - name: mobile_phone
         data_type: text
-      - name: assistant_phone
+      - name: department
         data_type: text
-      - name: reports_to_id
+      - name: lead_source
         data_type: text
+      - name: birthdate
+        data_type: date
       - name: mailing_street
         data_type: text
       - name: mailing_city
@@ -184,6 +186,10 @@ models:
       - name: mailing_postal_code
         data_type: text
       - name: mailing_country
+        data_type: text
+      - name: mailing_state_code
+        data_type: text
+      - name: mailing_country_code
         data_type: text
       - name: other_street
         data_type: text
@@ -195,49 +201,54 @@ models:
         data_type: text
       - name: other_country
         data_type: text
-      - name: account_id
-        description: Foreign key to dim_account.
+      - name: other_country_code
         data_type: text
+      - name: assistant_phone
+        data_type: text
+      - name: assistant_name
+        data_type: text
+      - name: home_phone
+        data_type: text
+      - name: description
+        data_type: text
+      - name: account_id
+        data_type: text
+        description: "Foreign key to dim_account. Nullable: contacts may not be linked to an account."
         tests:
-          - not_null
           - relationships:
               arguments:
                 to: ref('dim_account')
                 field: account_id
       - name: owner_id
         data_type: text
-      - name: title
-        data_type: text
-      - name: department
-        data_type: text
-      - name: birth_date
-        data_type: date
-      - name: lead_source
-        data_type: text
-      - name: description
-        data_type: text
-      - name: is_email_opted_out
-        data_type: boolean
-      - name: is_fax_opted_out
-        data_type: boolean
       - name: created_date
         data_type: timestamp
+      - name: created_by_id
+        data_type: text
       - name: last_modified_date
         data_type: timestamp
+      - name: last_modified_by_id
+        data_type: text
       - name: system_modstamp
         data_type: timestamp
+      - name: is_email_bounced
+        data_type: boolean
+      - name: photo_url
+        data_type: text
+      - name: clean_status
+        data_type: text
+      - name: is_priority_record
+        data_type: boolean
+      - name: contact_level
+        data_type: text
+      - name: languages
+        data_type: text
       - name: last_viewed_date
         data_type: timestamp
       - name: last_referenced_date
         data_type: timestamp
-      - name: email_bounced_reason
-        data_type: text
-      - name: email_bounced_date
-        data_type: date
-      - name: clean_status
-        data_type: text
-      - name: has_opted_out_of_tracking
-        data_type: boolean
+      - name: last_activity_date
+        data_type: timestamp
       - name: _loaded_at
         data_type: timestamp
         description: Timestamp when this row was loaded.
