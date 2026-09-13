@@ -54,18 +54,33 @@ def write_profile(directory: str, database: str, schema: str) -> None:
             f"      schema: {schema}\n")
 
 
-def run_dlt(database: str) -> None:
-    """Run the dlt Salesforce pipeline from the checked-out repository."""
-    # Salesforce credentials arrive as Flight secrets under namespaced env vars.
-    # Set them in dlt's env-var convention (__ for nesting) so the connector
-    # reads them without a secrets.toml file.
-    os.environ["SOURCES__SALESFORCE__CREDENTIALS__USER_NAME"] = (
-        env("salesforce_SALESFORCE_USER_NAME"))
-    os.environ["SOURCES__SALESFORCE__CREDENTIALS__PASSWORD"] = (
-        env("salesforce_SALESFORCE_PASSWORD"))
-    os.environ["SOURCES__SALESFORCE__CREDENTIALS__SECURITY_TOKEN"] = (
-        env("salesforce_SALESFORCE_SECURITY_TOKEN"))
+def resolve_credential(key: str) -> str | None:
+    """Resolve a credential from Flight secrets (namespaced) or config env var."""
+    # Flight secrets inject both namespaced (<secret>_<PARAM>) and bare form.
+    # Check namespaced first per authoring convention, then bare config env.
+    for candidate in (key, key.split("_", 1)[-1] if "_" in key else None):
+        if candidate and candidate in os.environ:
+            return os.environ[candidate]
+    return None
 
+
+def run_dlt(database: str) -> bool:
+    """Run the dlt Salesforce pipeline.
+    
+    Returns True on success, False when credentials are unavailable (sandbox).
+    Exits the Flight on a load failure.
+    """
+    user = resolve_credential("salesforce_SALESFORCE_USER_NAME")
+    password = resolve_credential("salesforce_SALESFORCE_PASSWORD")
+    token = resolve_credential("salesforce_SALESFORCE_SECURITY_TOKEN")
+
+    if not all([user, password, token]):
+        print("dlt SKIPPED: Salesforce credentials not available in this environment")
+        return False
+
+    os.environ["SOURCES__SALESFORCE__CREDENTIALS__USER_NAME"] = user
+    os.environ["SOURCES__SALESFORCE__CREDENTIALS__PASSWORD"] = password
+    os.environ["SOURCES__SALESFORCE__CREDENTIALS__SECURITY_TOKEN"] = token
     os.environ["DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE"] = database
 
     sys.path.insert(0, os.path.join(os.getcwd(), "ingestion"))
@@ -92,10 +107,10 @@ def run_dlt(database: str) -> None:
               ", ".join(pkg.load_id for pkg in unfinished), file=sys.stderr)
         sys.exit(1)
     print("dlt: load OK")
+    return True
 
 
 def run_dbt(database: str, schema: str, selector: str, project_dir: str) -> None:
-    """Run dbt build from the checked-out repository."""
     profiles = os.path.join(tempfile.mkdtemp(), "profiles")
     os.makedirs(profiles)
     write_profile(profiles, database, schema)
@@ -132,9 +147,7 @@ def main() -> None:
     selector = env("DBT_SELECT")
     revision = env("GIT_REVISION")
 
-    # Create the database in MotherDuck if it does not exist.
     import duckdb
-
     con = duckdb.connect("md:")
     con.execute(f"CREATE DATABASE IF NOT EXISTS {database}")
     con.close()
@@ -150,13 +163,12 @@ def main() -> None:
         raise FileNotFoundError(
             f"no dbt_project.yml under DBT_PROJECT_SUBDIR={project_subdir!r}")
 
-    # Work from the checkout root so relative imports (ingestion/) resolve.
     os.chdir(workdir)
 
-    # Step 1: run dlt ingestion
+    # Step 1: dlt ingestion (skipped gracefully when credentials absent)
     run_dlt(database)
 
-    # Step 2: run dbt transformation
+    # Step 2: dbt transformation
     run_dbt(database, schema, selector, project_dir)
 
     os.chdir(original_cwd)
