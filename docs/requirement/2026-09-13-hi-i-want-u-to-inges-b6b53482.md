@@ -85,3 +85,4 @@ Salesforce, via dlt's `salesforce` verified source. The connector is **not yet c
 | Date | Decision | Source | Exact revision set |
 | --- | --- | --- | --- |
 | 2026-09-13 | Requirement approved; proceed to design | User: "yes i'm cool, go ahead" | R-01@1, R-02@1, R-03@1, R-04@1, R-05@1, R-06@1, R-07@1 (deferred) |
+| 2026-09-13 | Design approved (design-reviewer APPROVE); proceed to planning | User: "approved — proceed to planning" | R-01@1, R-02@1, R-03@1, R-04@1, R-05@1, R-06@1 |
