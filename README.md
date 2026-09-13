@@ -21,9 +21,12 @@ Staging and intermediate materialize as views; marts as tables.
 
 ## Running
 
+The dbt project lives in `transformation/`, which is where the CI bundle looks
+for it.
+
 The CI bundle supplies the profiles. Locally, point `dbt_motherduck_prd` at
 `md:prd` with `MOTHERDUCK_TOKEN` in the environment.
 
 ```
-dbt build --profiles-dir <dir>
+dbt build --project-dir transformation --profiles-dir <dir>
 ```
