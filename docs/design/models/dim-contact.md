@@ -20,6 +20,10 @@ One row per Contact (unique on Contact `Id`).
 | Schema: `marts` | Per dbt_project.yml configuration | — |
 | `account_id` preserved | Enables join to `dim_account` for downstream analysis | R-04@1 |
 
+## Control columns
+
+Each row carries `_loaded_at` (timestamp of bronze load) and `_dbt_invocation_id` (dbt run identifier), populated by the dbt project configuration. These enable freshness and lineage tracking downstream.
+
 ## Rejected
 
 - **Denormalizing Account name/fields into dim_contact** — would violate dimensional modelling best practice; join via `account_id`

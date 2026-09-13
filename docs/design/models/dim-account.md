@@ -19,6 +19,10 @@ One row per Account (unique on Account `Id`).
 | Materialized as table | Project convention for marts/gold layer | — |
 | Schema: `marts` | Per dbt_project.yml configuration | — |
 
+## Control columns
+
+Each row carries `_loaded_at` (timestamp of bronze load) and `_dbt_invocation_id` (dbt run identifier), populated by the dbt project configuration. These enable freshness and lineage tracking downstream.
+
 ## Rejected
 
 - **Joining Contact data** — Contact is a separate dimension; any relationship is implicit via `account_id` on Contact
