@@ -35,7 +35,6 @@ pipeline = dlt.pipeline(
     pipeline_name=PIPELINE_NAME,
     destination="motherduck",                   # native md: destination; the database comes from config, never from this file
     dataset_name="main",                        # dlt default landing schema for bronze
-    dev_mode=True,                              # first-run safety: isolated per-run dataset
 )
 
 # The CONNECTION is the dlt source section: clone the connector into
@@ -45,6 +44,7 @@ source = salesforce_source.clone(name=CONNECTION_NAME, section=CONNECTION_NAME)(
 # Schema contract: columns frozen after first load, tables evolve until all resources land
 source.account.apply_hints(
     write_disposition="merge",                  # incremental on LastModifiedDate per verified source
+    primary_key="Id",                            # why: merge key for incremental upsert
     schema_contract={"columns": "freeze", "tables": "evolve", "data_type": "freeze"},
 )
 source.contact.apply_hints(
@@ -53,11 +53,11 @@ source.contact.apply_hints(
 )
 
 # First-run safety: limit to one yield per resource
-source.account.add_limit(1)
-source.contact.add_limit(1)
+# source.account.add_limit(1)
+# source.contact.add_limit(1)
 
 try:
-    load_info = pipeline.run(source, write_disposition="replace")  # safety: replace until full load
+    load_info = pipeline.run(source)
 except Exception as exc:
     finalize(pipeline, error_message=str(exc))   # audit the failed run, then re-raise
     raise

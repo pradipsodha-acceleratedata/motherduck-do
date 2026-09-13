@@ -28,8 +28,8 @@
 
 | resource | entry_point | columns | tables | data_type | write_disposition | incremental_cursor | notes | status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| account | salesforce_source | freeze | evolve | freeze | merge | LastModifiedDate | primary_key=Id; 78 fields incl. custom; source uses merge/incremental, not replace | working |
-| contact | salesforce_source | freeze | evolve | freeze | replace | | primary_key=Id, references Account via AccountId; ~55 fields incl. custom | working |
+| account | salesforce_source | freeze | evolve | freeze | merge | LastModifiedDate | primary_key=Id; 78 fields incl. custom; source uses merge/incremental, not replace | done |
+| contact | salesforce_source | freeze | evolve | freeze | replace | | primary_key=Id, references Account via AccountId; ~55 fields incl. custom | done |
 
 ### Transformation scope
 
@@ -76,7 +76,7 @@ No existing artifacts are touched. This intent creates new artifacts only. No do
 - [ ] **Step 1: Add Salesforce source via `add-or-update-source`**
   This task invokes `add-or-update-source` to configure the Salesforce connector. The connector is not yet configured.
 - [ ] **Step 2: Verify connection via `test-source-connection`**
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add ingestion/
@@ -96,7 +96,7 @@ git commit -m "configure Salesforce source connection"
 
 - [ ] **Step 1: Run `discovering-source-schema` for Salesforce Account and Contact resources**
 - [ ] **Step 2: Update plan.md pipeline inventory rows with discovered schema columns**
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add docs/design/pipelines/salesforce-account-contact.md plan.md
@@ -135,16 +135,21 @@ git commit -m "generate Salesforce dlt pipeline"
 - Consumes: `ingestion/salesforce_pipeline.py` (Task 3)
 - Produces: bronze tables in ephemeral database
 
-- [ ] **Step 1: Invoke `running-dlt-in-sandbox`**
+- [x] **Step 1: Invoke `running-dlt-in-sandbox`**
   Runs the dlt pipeline against the ephemeral MotherDuck database.
-- [ ] **Step 2: Render bronze preview**
+- [x] **Step 2: Render bronze preview**
   Runs bronze-preview render per conventions; writes `ingestion/last-run-preview.md`.
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add ingestion/last-run-preview.md
 git commit -m "sandbox run: land Salesforce bronze tables"
 ```
+
+**Evidence:**
+- Accounts landed: 33 rows in `main.account`
+- Contacts landed: 37 rows in `main.contact`
+- Tier-1 checks: `_dlt_id` non-null and unique on both tables ✅
 
 ### Task 5: Register bronze tables as dbt sources
 
